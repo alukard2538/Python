@@ -1,12 +1,17 @@
 from abc import ABC
+from enum import Enum, auto
+
+
+class ProductType(Enum):
+    Tshirt = auto()
+    Sneakers = auto()
+    CustomizableSneakers = auto()
 
 
 class Product(ABC):
-    Type = None
-    product_list = []
 
     def __init__(self,
-                 sku: int,
+                 sku: str,
                  price: float,
                  name: str,
                  quantity: int,
@@ -16,20 +21,15 @@ class Product(ABC):
         self.name = name
         self.quantity = quantity
         self.brand = brand
-        self.addtolist()
+        self.Type = None
 
-    def getType(self):
-        return Product.Type
-
-    def addtolist(self):
-        Product.product_list.append(self)
+    def get_type(self):
+        return self.Type
 
 
 class TshirtProduct(Product):
-    Type = 'Tshirt'
-
     def __init__(self,
-                 sku: int,
+                 sku: str,
                  price: float,
                  name: str,
                  quantity: int,
@@ -39,19 +39,15 @@ class TshirtProduct(Product):
         super().__init__(sku, price, name, quantity, brand)
         self.size = size
         self.color = color
+        self.Type = ProductType.Tshirt.name
 
-    def getType(self):
-        return TshirtProduct.Type
-
-    def addtolist(self):
-        Product.product_list.append(self)
+    def get_type(self):
+        return self.Type
 
 
 class SneakersProduct(Product):
-    Type = 'Sneakers'
-
     def __init__(self,
-                 sku: int,
+                 sku: str,
                  price: float,
                  name: str,
                  quantity: int,
@@ -61,49 +57,40 @@ class SneakersProduct(Product):
         super().__init__(sku, price, name, quantity, brand)
         self.size = size
         self.color = color
+        self.Type = ProductType.Sneakers.name
 
-    def getType(self):
-        return SneakersProduct.Type
+    def get_type(self):
+        return self.Type
 
-    def addtolist(self):
-        Product.product_list.append(self)
+
+class PrintOption(Enum):
+    Dog = 1000
+    Cat = 750
+    Snake = 500
+
+
+class LacesOption(Enum):
+    Red = 100
+    Green = 200
+    Blue = 300
 
 
 class CustomizableSneakersProduct(SneakersProduct):
-    Type = 'Customizable_Sneakers'
-
-    printOption = {'cat': 2000,
-                   'dog': 1500,
-                   'frog': 3000}
-
-    lacesOption = {'white': 100,
-                   'black': 200,
-                   'grey': 300}
-
     def __init__(self,
-                 sku: int,
+                 sku: str,
                  price: float,
                  name: str,
                  quantity: int,
                  brand: str,
                  size: float,
                  color: str,
-                 print_: str,
-                 laces: str):
+                 print_: PrintOption,
+                 laces: LacesOption):
         super().__init__(sku, price, name, quantity, brand, size, color)
         self.print_ = print_
         self.laces = laces
-        if self.print_ not in CustomizableSneakersProduct.printOption:
-            raise ValueError('Unsupported option `{}`.'.format(self.print_))
-        elif self.laces not in CustomizableSneakersProduct.lacesOption:
-            raise ValueError('Unsupported option `{}`.'.format(self.laces))
-        else:
-            self.price = self.price + \
-                         CustomizableSneakersProduct.printOption[self.print_] + \
-                         CustomizableSneakersProduct.lacesOption[self.laces]
+        self.Type = ProductType.CustomizableSneakers.name
+        self.price = self.price + self.print_.value + self.laces.value
 
-    def getType(self):
-        return CustomizableSneakersProduct.Type
-
-    def addtolist(self):
-        Product.product_list.append(self)
+    def get_type(self):
+        return self.Type
